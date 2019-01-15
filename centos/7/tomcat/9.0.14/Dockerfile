@@ -7,10 +7,9 @@
 # To run container with systemctl, user --cap-add SYS_ADMIN
 # docker container run --cap-add SYS_ADMIN
 
+FROM local/centos7/oraclejdk:8u192
 
-FROM local/centos7/jdk8u192:latest
-
-LABEL imagename="local/c7-tomcat:9.0.14"
+LABEL imagename="local/centos7/tomcat:9.0.14"
 LABEL maintainer="khromov.igor@gmail.com"
 
 # Install Tomcat 9.0.14
@@ -22,6 +21,7 @@ RUN echo 'Installing Tomcat 9.0.14 ...' \
 	&& tar xzf ./apache-tomcat-9.0.14.tar.gz \
 	&& rm -rf /opt/tomcat/apache-tomcat-9.0.14.tar.gz
 
+# Add tomcat user and change preveligies 
 RUN adduser tomcat \
 	&& cd /opt/tomcat \
 	&& chown -R root:tomcat ./apache-tomcat-9.0.14 \
@@ -30,9 +30,11 @@ RUN adduser tomcat \
 	&& chown -R tomcat:tomcat logs/ temp/ webapps/ work/ \
 	&& chmod -R 770 logs/ temp/ webapps/ work/
 
+# Create symlink to current tomcat folder
 RUN cd /opt/tomcat \
 	&& ln -s ./apache-tomcat-9.0.14 ./current
 
+# Set tomcat environment variables
 RUN touch /etc/profile.d/tomcatenv.sh \
 	&& echo '# Tomcat' | tee -a /etc/profile.d/tomcatenv.sh \
 	&& echo 'export CATALINA_HOME=/opt/tomcat/current' | tee -a /etc/profile.d/tomcatenv.sh \
@@ -43,6 +45,7 @@ RUN touch /etc/profile.d/tomcatenv.sh \
 	&& echo "alias tomcat-restart='tomcat-stop && tomcat-start'" | tee -a /etc/profile.d/tomcatenv.sh \
 	&& source /etc/profile.d/tomcatenv.sh
 
+# 
 RUN cd /opt/tomcat/current \
 	&& mkdir pid \
 	&& chown root:tomcat ./pid \
@@ -57,6 +60,6 @@ RUN cd /opt/tomcat/current/bin \
 	&& echo export JAVA_OPTS=\"-Djava.awt.headless=true -Djava.security.egd=file:/dev/./urandom\" | tee -a ./setenv.sh
 
 # Install haveged to enfast Tomcat load speed
-RUN yum -y install haveged \
-	&& systemctl start haveged.service \
-	&& systemctl enable haveged.service
+RUN yum -y install haveged
+#	&& systemctl start haveged.service \
+#	&& systemctl enable haveged.service

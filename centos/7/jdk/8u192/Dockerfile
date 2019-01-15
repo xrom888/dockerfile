@@ -5,7 +5,7 @@
 
 FROM local/centos7-systemd:latest
 
-LABEL imagename="local/centos7/jdk8u192"
+LABEL imagename="local/centos7/oraclejdk:8u192"
 LABEL maintainer="khromov.igor@gmail.com"
 
 RUN echo 'Installing Oracle JDK 8u192 ...' \
@@ -21,3 +21,4 @@ RUN echo 'Installing Oracle JDK 8u192 ...' \
 	&& echo 'export JAVA_HOME=/opt/jdk/current' | tee -a /etc/profile.d/javaenv.sh \
 	&& echo 'export PATH=$PATH:/opt/jdk/current/bin' | tee -a /etc/profile.d/javaenv.sh \
 	&& source /etc/profile.d/javaenv.sh
+
